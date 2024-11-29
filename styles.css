@@ -1,0 +1,23 @@
+/* Highlight Overlay */
+.ui-highlighter-overlay {
+    position: absolute;
+    background: rgba(0, 0, 255, 0.2);
+    border: 2px solid greenyellow;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  
+  /* Tooltip */
+  .ui-highlighter-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10000;
+    font-family: Arial, sans-serif;
+  }
+  

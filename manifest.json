@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Dev Peek",
+  "version": "1.0",
+  "description": "Highlight and inspect UI elements on hover.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_icon": {
+      "16": "icons/eye.png",
+      "48": "icons/eye48x48.png",
+      "128": "icons/eye128.png"
+    },
+    "default_title": "Dev Peek"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}
