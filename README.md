@@ -16,7 +16,7 @@ Dev Peek is a lightweight and developer-friendly browser extension for Microsoft
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/DevPeek.git
+   git clone https://github.com/sempijja/Dev-Peek
    cd HoverPeek
    ```
 
@@ -57,7 +57,7 @@ We welcome contributions to HoverPeek! Here’s how you can contribute:
 1. **Fork the Repository**: Click on the fork button at the top-right corner of this repository.
 2. **Clone Your Fork**:
    ```bash
-   git clone https://github.com/your-username/DevPeek.git
+   git clone https://github.com/sempijja/Dev-Peek
    ```
 3. **Create a New Branch**:
    ```bash
@@ -78,7 +78,7 @@ We welcome contributions to HoverPeek! Here’s how you can contribute:
 
 
 ## **License**
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. .
 
 ---
 
