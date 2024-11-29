@@ -23,28 +23,11 @@ Dev Peek is a lightweight and developer-friendly browser extension for Microsoft
 2. Open Microsoft Edge and navigate to:
    `edge://extensions/`
 
-3. Enable **Developer Mode** (toggle the switch in the top-right corner).
 
-4. Click on **Load unpacked** and select the `ui-highlighter` folder.
-
-5. HoverPeek is now installed and ready to use.
-
----
-
-## **Usage**
-1. Click the **HoverPeek** icon in the toolbar to activate the extension.
-2. Hover over any element on the page to view:
-   - A blue semi-transparent overlay.
-   - A tooltip showing tag name, class names, and dimensions.
-3. Click the **HoverPeek** icon again to deactivate and clean up overlays and tooltips.
-
----
-
----
 
 ## **Contributing**
 
-We welcome contributions to HoverPeek! Here’s how you can contribute:
+We welcome contributions to Dev Peek! Here’s how you can contribute:
 
 ### **Bug Reports and Feature Requests**
 1. Navigate to the **Issues** tab on GitHub.
@@ -52,6 +35,7 @@ We welcome contributions to HoverPeek! Here’s how you can contribute:
    - A clear title.
    - Steps to reproduce (for bugs).
    - Suggested features or enhancements (for feature requests).
+
 
 ### **Code Contributions**
 1. **Fork the Repository**: Click on the fork button at the top-right corner of this repository.
