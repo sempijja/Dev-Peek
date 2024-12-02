@@ -25,29 +25,31 @@ function initializeHoverPeek() {
     highlight.style.width = `${rect.width}px`;
     highlight.style.height = `${rect.height}px`;
     highlight.style.position = "absolute";
-    highlight.style.border = "2px solid #00ff00";
+    highlight.style.border = "6px solid #00ff00"; // the highlight of the component
     highlight.style.pointerEvents = "none"; // Allow hover to pass through
     document.body.appendChild(highlight);
 
     // Get CSS properties of the element
     const computedStyles = window.getComputedStyle(element);
-    const cssProperties = `
+    // Variable extracting css properties
+    const cssProperties = ` 
       color: ${computedStyles.color};
       font-size: ${computedStyles.fontSize};
       background: ${computedStyles.backgroundColor};
       margin: ${computedStyles.margin};
       padding: ${computedStyles.padding};
+      border-radius: ${computedStyles.borderRadius}
     `.trim();
 
     // Create and style the tooltip
     const tooltip = document.createElement("div");
     tooltip.className = "ui-highlighter-tooltip";
     tooltip.innerHTML = `
-      <button id="copy-css" style="position: absolute; top: 4px; right: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer;">Copy CSS</button>
+      <button id="copy-css" style="position: absolute; top: 4px; right: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer; border-radius: 4px;">Copy CSS</button>
       Tag: ${element.tagName.toLowerCase()}<br>
       Classes: ${element.className || "none"}<br>
       Dimensions: ${Math.round(rect.width)}px × ${Math.round(rect.height)}px<br>
-      <pre style="margin: 5px 0; font-size: 12px; white-space: pre-wrap;">${cssProperties}</pre>
+      <pre style="margin: 5px 0; font-size: 12px; white-space: pre-wrap; color: white; ">${cssProperties}</pre>
       <span id="copy-feedback" style="display: none; position: absolute; top: -20px; right: 4px; color: green; font-size: 12px;">Copied!</span>
     `;
     tooltip.style.position = "absolute";
