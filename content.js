@@ -1,4 +1,5 @@
 let isInspectModeActive = false;
+let currentObjectUrl = null;
 
 // Function to start or stop inspection
 function toggleInspect(isActive) {
@@ -25,6 +26,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 function cleanup() {
+    if (currentObjectUrl) {
+        URL.revokeObjectURL(currentObjectUrl);
+        currentObjectUrl = null;
+    }
     isInspectModeActive = false;
     document.removeEventListener("mouseover", handleMouseOver);
     document.removeEventListener("mouseout", handleMouseOut);
@@ -199,25 +204,31 @@ function createEditorPanel(element) {
 
     // Add event listener to close button
     document.getElementById('close-editor').addEventListener('click', () => {
+        if (currentObjectUrl) {
+            URL.revokeObjectURL(currentObjectUrl);
+            currentObjectUrl = null;
+        }
         panel.remove();
     });
 
     // Add event listeners for real-time editing
     if (isImageElement || hasBackgroundImage) {
-        document.getElementById('image-upload-input').addEventListener('change', (e) => {
-            const file = e.target.files[0];
+        const handleImageFile = (file) => {
             if (!file) return;
+            if (currentObjectUrl) {
+                URL.revokeObjectURL(currentObjectUrl);
+            }
+            const imageUrl = URL.createObjectURL(file);
+            currentObjectUrl = imageUrl;
+            if (isImageElement) {
+                element.src = imageUrl;
+            } else {
+                element.style.backgroundImage = `url(${imageUrl})`;
+            }
+        };
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const imageUrl = event.target.result;
-                if (isImageElement) {
-                    element.src = imageUrl;
-                } else {
-                    element.style.backgroundImage = `url(${imageUrl})`;
-                }
-            };
-            reader.readAsDataURL(file);
+        document.getElementById('image-upload-input').addEventListener('change', (e) => {
+            handleImageFile(e.target.files[0]);
         });
 
         document.getElementById('paste-zone').addEventListener('paste', (e) => {
@@ -225,17 +236,7 @@ function createEditorPanel(element) {
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (const item of items) {
                 if (item.type.indexOf('image') === 0) {
-                    const blob = item.getAsFile();
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const imageUrl = event.target.result;
-                        if (isImageElement) {
-                            element.src = imageUrl;
-                        } else {
-                            element.style.backgroundImage = `url(${imageUrl})`;
-                        }
-                    };
-                    reader.readAsDataURL(blob);
+                    handleImageFile(item.getAsFile());
                 }
             }
         });
