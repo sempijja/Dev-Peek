@@ -7,26 +7,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 // Inject the content script and styles
                 chrome.scripting.insertCSS({
                     target: { tabId: tabId },
-                    files: ["styles.css"]
+                    files: ["styles.css", "coloris.min.css"]
                 });
                 chrome.scripting.executeScript({
                     target: { tabId: tabId },
                     files: ["content.js"]
                 });
             } else {
-                // Remove the content script's effects
-                chrome.scripting.executeScript({
-                    target: { tabId: tabId },
-                    func: () => {
-                        const existingPanel = document.getElementById('editor-panel');
-                        if (existingPanel) existingPanel.remove();
-                        const existingHighlight = document.querySelector(".ui-highlighter-overlay");
-                        if (existingHighlight) existingHighlight.remove();
-                        // Turn off all event listeners by reloading the content script's state
-                        // The content script will handle this, so we just message it.
-                         window.location.reload(); // A simple way to clean up listeners
-                    }
-                });
+                // Send a message to the content script to deactivate and clean up
+                chrome.tabs.sendMessage(tabId, { action: 'deactivateInspectMode' });
             }
         });
     }

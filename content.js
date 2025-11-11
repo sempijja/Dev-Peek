@@ -14,13 +14,25 @@ function toggleInspect(isActive) {
     }
 }
 
-// Listen for messages from the popup
+// Listen for messages from the background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'toggleInspectMode') {
+    if (request.action === 'deactivateInspectMode') {
+        cleanup();
+    } else if (request.action === 'toggleInspectMode') {
         isInspectModeActive = request.isActive;
         toggleInspect(isInspectModeActive);
     }
 });
+
+function cleanup() {
+    isInspectModeActive = false;
+    document.removeEventListener("mouseover", handleMouseOver);
+    document.removeEventListener("mouseout", handleMouseOut);
+    document.removeEventListener("click", handleMouseClick);
+    const existingPanel = document.getElementById('editor-panel');
+    if (existingPanel) existingPanel.remove();
+    removeHighlight();
+}
 
 // Initial state check
 chrome.storage.local.get('inspectModeActive', (data) => {
@@ -77,6 +89,34 @@ function createEditorPanel(element) {
         existingPanel.remove();
     }
 
+    // Inject the Coloris script
+    if (!document.querySelector('script[src*="coloris.min.js"]')) {
+        const script = document.createElement('script');
+        script.src = chrome.runtime.getURL('coloris.min.js');
+        document.head.appendChild(script);
+        script.onload = () => {
+            Coloris.init();
+            Coloris({
+                theme: 'large',
+                swatches: [
+                    '#264653',
+                    '#2a9d8f',
+                    '#e9c46a',
+                    '#f4a261',
+                    '#e76f51',
+                    '#d62828',
+                    '#023e8a',
+                    '#0077b6',
+                    '#0096c7',
+                    '#00b4d8',
+                    '#48cae4'
+                ],
+                eyeDropper: true,
+                alpha: true
+            });
+        };
+    }
+
     const panel = document.createElement('div');
     panel.id = 'editor-panel';
 
@@ -101,11 +141,20 @@ function createEditorPanel(element) {
             <div class="editor-section">
                 <h4>Styles</h4>
                 <div class="style-editor">
-                    <label>Color</label><input type="text" id="color-input" value="${computedStyle.color}">
-                    <label>Bg Color</label><input type="text" id="bg-color-input" value="${computedStyle.backgroundColor}">
+                    <label>Color</label><input type="text" id="color-input" value="${computedStyle.color}" data-coloris>
+                    <label>Bg Color</label><input type="text" id="bg-color-input" value="${computedStyle.backgroundColor}" data-coloris>
                     <label>Font Size</label><input type="text" id="font-size-input" value="${computedStyle.fontSize}">
                     <label>Margin</label><input type="text" id="margin-input" value="${computedStyle.margin}">
                     <label>Padding</label><input type="text" id="padding-input" value="${computedStyle.padding}">
+                    <label>Border Radius</label><input type="text" id="border-radius-input" value="${computedStyle.borderRadius}">
+                </div>
+            </div>
+            <div class="editor-section">
+                <h4>Background Gradient</h4>
+                <div class="gradient-editor">
+                    <label>Direction</label><input type="text" id="gradient-direction-input" value="to right">
+                    <label>Color 1</label><input type="text" id="gradient-color1-input" value="#ffffff" data-coloris>
+                    <label>Color 2</label><input type="text" id="gradient-color2-input" value="#000000" data-coloris>
                 </div>
             </div>
             <div class="editor-section">
@@ -122,6 +171,9 @@ function createEditorPanel(element) {
     panel.style.top = `${rect.bottom + window.scrollY + 10}px`;
     panel.style.left = `${rect.left + window.scrollX}px`;
 
+
+    // Make the panel draggable
+    makeDraggable(panel);
 
     // Add event listener to close button
     document.getElementById('close-editor').addEventListener('click', () => {
@@ -147,6 +199,22 @@ function createEditorPanel(element) {
     document.getElementById('padding-input').addEventListener('input', (e) => {
         element.style.padding = e.target.value;
     });
+    document.getElementById('border-radius-input').addEventListener('input', (e) => {
+        element.style.borderRadius = e.target.value;
+    });
+
+    // Gradient listeners
+    const gradientDirection = document.getElementById('gradient-direction-input');
+    const gradientColor1 = document.getElementById('gradient-color1-input');
+    const gradientColor2 = document.getElementById('gradient-color2-input');
+
+    function updateGradient() {
+        element.style.backgroundImage = `linear-gradient(${gradientDirection.value}, ${gradientColor1.value}, ${gradientColor2.value})`;
+    }
+
+    gradientDirection.addEventListener('input', updateGradient);
+    gradientColor1.addEventListener('input', updateGradient);
+    gradientColor2.addEventListener('input', updateGradient);
 }
 
 // Helper functions for color contrast
@@ -170,4 +238,27 @@ function getContrastRatio(rgb1, rgb2) {
     const brightest = Math.max(lum1, lum2);
     const darkest = Math.min(lum1, lum2);
     return (brightest + 0.05) / (darkest + 0.05);
+}
+
+function makeDraggable(panel) {
+    const header = panel.querySelector('.editor-header');
+    header.style.cursor = 'move';
+    let isDragging = false;
+    let offset = { x: 0, y: 0 };
+
+    header.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offset.x = e.clientX - panel.offsetLeft;
+        offset.y = e.clientY - panel.offsetTop;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        panel.style.left = `${e.clientX - offset.x}px`;
+        panel.style.top = `${e.clientY - offset.y}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
 }
