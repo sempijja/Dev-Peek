@@ -1,99 +1,173 @@
-// Ensure the script runs after the document is fully loaded
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  initializeHoverPeek();
-} else {
-  document.addEventListener('DOMContentLoaded', initializeHoverPeek);
+let isInspectModeActive = false;
+
+// Function to start or stop inspection
+function toggleInspect(isActive) {
+    if (isActive) {
+        document.addEventListener("mouseover", handleMouseOver);
+        document.addEventListener("mouseout", handleMouseOut);
+        document.addEventListener("click", handleMouseClick);
+    } else {
+        document.removeEventListener("mouseover", handleMouseOver);
+        document.removeEventListener("mouseout", handleMouseOut);
+        document.removeEventListener("click", handleMouseClick);
+        removeHighlight();
+    }
 }
 
-function initializeHoverPeek() {
-  // Create global event handlers for toggling
-  window.hoverPeekHandler = (event) => {
+// Listen for messages from the popup
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'toggleInspectMode') {
+        isInspectModeActive = request.isActive;
+        toggleInspect(isInspectModeActive);
+    }
+});
+
+// Initial state check
+chrome.storage.local.get('inspectModeActive', (data) => {
+    isInspectModeActive = !!data.inspectModeActive;
+    toggleInspect(isInspectModeActive);
+});
+
+
+function handleMouseOver(event) {
     const element = event.target;
+    if (element.id !== 'editor-panel' && !element.closest('#editor-panel')) {
+        highlightElement(element);
+    }
+}
 
-    // Remove existing highlights
-    const existingHighlight = document.querySelector(".ui-highlighter-overlay");
-    const existingTooltip = document.querySelector(".ui-highlighter-tooltip");
-    if (existingHighlight) existingHighlight.remove();
-    if (existingTooltip) existingTooltip.remove();
+function handleMouseOut() {
+    removeHighlight();
+}
 
-    // Create and style the highlight overlay
-    const highlight = document.createElement("div");
+function handleMouseClick(event) {
+    if (isInspectModeActive) {
+        const element = event.target;
+        if (element.id !== 'editor-panel' && !element.closest('#editor-panel')) {
+            event.preventDefault();
+            event.stopPropagation();
+            createEditorPanel(element);
+        }
+    }
+}
+
+function highlightElement(element) {
+    removeHighlight(); // Ensure only one highlight at a time
     const rect = element.getBoundingClientRect();
+    const highlight = document.createElement("div");
     highlight.className = "ui-highlighter-overlay";
     highlight.style.top = `${rect.top + window.scrollY}px`;
     highlight.style.left = `${rect.left + window.scrollX}px`;
     highlight.style.width = `${rect.width}px`;
     highlight.style.height = `${rect.height}px`;
-    highlight.style.position = "absolute";
-    highlight.style.border = "6px solid #00ff00"; // the highlight of the component
-    highlight.style.pointerEvents = "none"; // Allow hover to pass through
     document.body.appendChild(highlight);
+}
 
-    // Get CSS properties of the element
-    const computedStyles = window.getComputedStyle(element);
-    // Variable extracting css properties
-    const cssProperties = ` 
-      color: ${computedStyles.color};
-      font-size: ${computedStyles.fontSize};
-      background: ${computedStyles.backgroundColor};
-      margin: ${computedStyles.margin};
-      padding: ${computedStyles.padding};
-      border-radius: ${computedStyles.borderRadius}
-    `.trim();
+function removeHighlight() {
+    const existingHighlight = document.querySelector(".ui-highlighter-overlay");
+    if (existingHighlight) {
+        existingHighlight.remove();
+    }
+}
 
-    // Create and style the tooltip
-    const tooltip = document.createElement("div");
-    tooltip.className = "ui-highlighter-tooltip";
-    tooltip.innerHTML = `
-      <button id="copy-css" style="position: absolute; top: 4px; right: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer; border-radius: 4px;">Copy CSS</button>
-      Tag: ${element.tagName.toLowerCase()}<br>
-      Classes: ${element.className || "none"}<br>
-      Dimensions: ${Math.round(rect.width)}px × ${Math.round(rect.height)}px<br>
-      <pre style="margin: 5px 0; font-size: 12px; white-space: pre-wrap; color: white; ">${cssProperties}</pre>
-      <span id="copy-feedback" style="display: none; position: absolute; top: -20px; right: 4px; color: green; font-size: 12px;">Copied!</span>
+function createEditorPanel(element) {
+    // Remove existing panel
+    const existingPanel = document.getElementById('editor-panel');
+    if (existingPanel) {
+        existingPanel.remove();
+    }
+
+    const panel = document.createElement('div');
+    panel.id = 'editor-panel';
+
+    const computedStyle = window.getComputedStyle(element);
+
+    // Get accessibility info
+    const ariaRole = element.getAttribute('role') || 'none';
+    const color = getRGB(computedStyle.color);
+    const backgroundColor = getRGB(computedStyle.backgroundColor);
+    const contrastRatio = getContrastRatio(color, backgroundColor).toFixed(2);
+
+    panel.innerHTML = `
+        <div class="editor-header">
+            <h3>Inspect Panel</h3>
+            <button id="close-editor">×</button>
+        </div>
+        <div class="editor-content">
+            <div class="editor-section">
+                <h4>Text</h4>
+                <textarea id="text-editor">${element.innerText}</textarea>
+            </div>
+            <div class="editor-section">
+                <h4>Styles</h4>
+                <div class="style-editor">
+                    <label>Color</label><input type="text" id="color-input" value="${computedStyle.color}">
+                    <label>Bg Color</label><input type="text" id="bg-color-input" value="${computedStyle.backgroundColor}">
+                    <label>Font Size</label><input type="text" id="font-size-input" value="${computedStyle.fontSize}">
+                    <label>Margin</label><input type="text" id="margin-input" value="${computedStyle.margin}">
+                    <label>Padding</label><input type="text" id="padding-input" value="${computedStyle.padding}">
+                </div>
+            </div>
+            <div class="editor-section">
+                <h4>Accessibility</h4>
+                <p><strong>ARIA Role:</strong> ${ariaRole}</p>
+                <p><strong>Contrast Ratio:</strong> ${contrastRatio}</p>
+            </div>
+        </div>
     `;
-    tooltip.style.position = "absolute";
-    tooltip.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-    tooltip.style.color = "#fff";
-    tooltip.style.padding = "12px";
-    tooltip.style.borderRadius = "8px";
-    tooltip.style.zIndex = "9999";
-    tooltip.style.pointerEvents = "auto"; // Allow interaction with the button
-    tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
-    tooltip.style.left = `${rect.left + window.scrollX}px`;
-    document.body.appendChild(tooltip);
 
-    // Add copy functionality
-    const copyButton = document.getElementById("copy-css");
-    const copyFeedback = document.getElementById("copy-feedback");
+    document.body.appendChild(panel);
 
-    const copyCSS = () => {
-      navigator.clipboard.writeText(cssProperties).then(() => {
-        // Display feedback message
-        copyFeedback.style.display = "inline";
-        setTimeout(() => {
-          copyFeedback.style.display = "none"; // Hide after 2 seconds
-        }, 2000);
-      });
-    };
+    const rect = element.getBoundingClientRect();
+    panel.style.top = `${rect.bottom + window.scrollY + 10}px`;
+    panel.style.left = `${rect.left + window.scrollX}px`;
 
-    // Add click and Enter key functionality
-    copyButton.addEventListener("click", copyCSS);
-    document.addEventListener("keydown", (keyEvent) => {
-      if (keyEvent.key === "Enter") {
-        copyCSS();
-      }
+
+    // Add event listener to close button
+    document.getElementById('close-editor').addEventListener('click', () => {
+        panel.remove();
     });
-  };
 
-  window.hoverPeekHandlerOut = () => {
-    const highlight = document.querySelector(".ui-highlighter-overlay");
-    const tooltip = document.querySelector(".ui-highlighter-tooltip");
-    if (highlight) highlight.remove();
-    if (tooltip) tooltip.remove();
-  };
+    // Add event listeners for real-time editing
+    document.getElementById('text-editor').addEventListener('input', (e) => {
+        element.innerText = e.target.value;
+    });
+    document.getElementById('color-input').addEventListener('input', (e) => {
+        element.style.color = e.target.value;
+    });
+    document.getElementById('bg-color-input').addEventListener('input', (e) => {
+        element.style.backgroundColor = e.target.value;
+    });
+    document.getElementById('font-size-input').addEventListener('input', (e) => {
+        element.style.fontSize = e.target.value;
+    });
+    document.getElementById('margin-input').addEventListener('input', (e) => {
+        element.style.margin = e.target.value;
+    });
+    document.getElementById('padding-input').addEventListener('input', (e) => {
+        element.style.padding = e.target.value;
+    });
+}
 
-  // Add event listeners for hover
-  document.addEventListener("mouseover", window.hoverPeekHandler);
-  document.addEventListener("mouseout", window.hoverPeekHandlerOut);
+// Helper functions for color contrast
+function getRGB(colorStr) {
+    if (!colorStr) return [255, 255, 255]; // Default to white
+    const match = colorStr.match(/rgba?\((\d{1,3}), (\d{1,3}), (\d{1,3})/);
+    return match ? [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])] : [255, 255, 255];
+}
+
+function getLuminance(rgb) {
+    const [r, g, b] = rgb.map(c => {
+        c /= 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function getContrastRatio(rgb1, rgb2) {
+    const lum1 = getLuminance(rgb1);
+    const lum2 = getLuminance(rgb2);
+    const brightest = Math.max(lum1, lum2);
+    const darkest = Math.min(lum1, lum2);
+    return (brightest + 0.05) / (darkest + 0.05);
 }
