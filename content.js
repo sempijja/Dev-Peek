@@ -128,12 +128,24 @@ function createEditorPanel(element) {
     const backgroundColor = getRGB(computedStyle.backgroundColor);
     const contrastRatio = getContrastRatio(color, backgroundColor).toFixed(2);
 
-    panel.innerHTML = `
-        <div class="editor-header">
-            <h3>Inspect Panel</h3>
-            <button id="close-editor">×</button>
-        </div>
-        <div class="editor-content">
+    const isImageElement = element.tagName === 'IMG';
+    const hasBackgroundImage = computedStyle.backgroundImage !== 'none';
+
+    let editorContent;
+
+    if (isImageElement || hasBackgroundImage) {
+        editorContent = `
+            <div class="editor-section">
+                <h4>Image Grabber</h4>
+                <p>Upload or paste an image to replace the current one.</p>
+                <input type="file" id="image-upload-input" accept="image/*">
+                <div id="paste-zone" style="border: 2px dashed #ccc; padding: 20px; text-align: center; margin-top: 10px;">
+                    Paste Image Here
+                </div>
+            </div>
+        `;
+    } else {
+        editorContent = `
             <div class="editor-section">
                 <h4>Text</h4>
                 <textarea id="text-editor">${element.innerText}</textarea>
@@ -157,6 +169,16 @@ function createEditorPanel(element) {
                     <label>Color 2</label><input type="text" id="gradient-color2-input" value="#000000" data-coloris>
                 </div>
             </div>
+        `;
+    }
+
+    panel.innerHTML = `
+        <div class="editor-header">
+            <h3>Inspect Panel</h3>
+            <button id="close-editor">×</button>
+        </div>
+        <div class="editor-content">
+            ${editorContent}
             <div class="editor-section">
                 <h4>Accessibility</h4>
                 <p><strong>ARIA Role:</strong> ${ariaRole}</p>
@@ -181,10 +203,47 @@ function createEditorPanel(element) {
     });
 
     // Add event listeners for real-time editing
-    document.getElementById('text-editor').addEventListener('input', (e) => {
-        element.innerText = e.target.value;
-    });
-    document.getElementById('color-input').addEventListener('input', (e) => {
+    if (isImageElement || hasBackgroundImage) {
+        document.getElementById('image-upload-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imageUrl = event.target.result;
+                if (isImageElement) {
+                    element.src = imageUrl;
+                } else {
+                    element.style.backgroundImage = `url(${imageUrl})`;
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('paste-zone').addEventListener('paste', (e) => {
+            e.preventDefault();
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.type.indexOf('image') === 0) {
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const imageUrl = event.target.result;
+                        if (isImageElement) {
+                            element.src = imageUrl;
+                        } else {
+                            element.style.backgroundImage = `url(${imageUrl})`;
+                        }
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+    } else {
+        document.getElementById('text-editor').addEventListener('input', (e) => {
+            element.innerText = e.target.value;
+        });
+        document.getElementById('color-input').addEventListener('input', (e) => {
         element.style.color = e.target.value;
     });
     document.getElementById('bg-color-input').addEventListener('input', (e) => {
@@ -215,6 +274,7 @@ function createEditorPanel(element) {
     gradientDirection.addEventListener('input', updateGradient);
     gradientColor1.addEventListener('input', updateGradient);
     gradientColor2.addEventListener('input', updateGradient);
+    }
 }
 
 // Helper functions for color contrast
