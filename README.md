@@ -5,7 +5,7 @@ Dev Peek is a powerful, developer-friendly browser extension that brings Figma-l
 ---
 
 ## **Features**
-- **Inspect Mode**: Activate a powerful inspect mode that highlights elements on hover.
+- **Inspect Mode**: Activate a powerful inspect mode that highlights elements on hover
 - **Draggable Editor Panel**: A floating panel that can be moved anywhere on the screen to prevent obstruction.
 - **Live Text and Style Editing**: Edit text content, colors, background, font size, margin, and padding in real-time.
 - **Advanced Color Picker**: Includes an eyedropper tool to sample colors directly from the page.
