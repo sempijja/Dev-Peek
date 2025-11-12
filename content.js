@@ -94,11 +94,22 @@ function createEditorPanel(element) {
 
     // Inject the Coloris script and CSS override
     if (!document.querySelector('script[src*="coloris.min.js"]')) {
+        const injectStylesheet = (href) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = chrome.runtime.getURL(href);
+            document.head.appendChild(link);
+        };
+
+        // Inject Spectrum CSS
+        injectStylesheet('node_modules/@spectrum-css/vars/dist/spectrum-dark.css');
+        injectStylesheet('node_modules/@spectrum-css/typography/dist/index.min.css');
+        injectStylesheet('node_modules/@spectrum-css/textfield/dist/index.min.css');
+        injectStylesheet('node_modules/@spectrum-css/button/dist/index.min.css');
+        injectStylesheet('node_modules/@spectrum-css/picker/dist/index.min.css');
+
         // Inject Override CSS
-        const overrideLink = document.createElement('link');
-        overrideLink.rel = 'stylesheet';
-        overrideLink.href = chrome.runtime.getURL('override.css');
-        document.head.appendChild(overrideLink);
+        injectStylesheet('override.css');
 
         const script = document.createElement('script');
         script.src = chrome.runtime.getURL('coloris.min.js');
@@ -147,14 +158,14 @@ function createEditorPanel(element) {
         panelTitle = "Image Grabber";
         editorContent = `
             <div class="editor-section">
-                <p>Upload an image to replace the current one</p>
+                <p class="spectrum-Body--sizeS">Upload an image to replace the current one</p>
             </div>
             <div class="editor-section">
-                <h4>Image</h4>
+                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Image</h4>
                 <div class="file-upload-wrapper">
                     <input type="file" id="image-upload-input" accept="image/*" class="file-upload-input">
-                    <label for="image-upload-input" class="file-upload-button">Chose file</label>
-                    <span id="file-name" class="file-name">No file chosen</span>
+                    <label for="image-upload-input" class="spectrum-Button spectrum-Button--primary spectrum-Button--sizeM">Chose file</label>
+                    <span id="file-name" class="spectrum-Body--sizeS file-name">No file chosen</span>
                 </div>
             </div>
         `;
@@ -180,60 +191,79 @@ function createEditorPanel(element) {
 
         editorContent = `
             <div class="editor-section">
-                <h4>Text</h4>
-                <textarea id="text-editor">${element.innerText}</textarea>
-            </div>
-            <div class="editor-section">
-                <h4>Design</h4>
-                <div class="style-editor">
-                    <label>Color</label><input type="text" id="color-input" value="${computedStyle.color}" data-coloris>
-                    <label>Bg Color</label><input type="text" id="bg-color-input" value="${computedStyle.backgroundColor}" data-coloris>
+                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Text</h4>
+                <div class="spectrum-TextArea">
+                    <textarea id="text-editor" class="spectrum-TextArea-input">${element.innerText}</textarea>
                 </div>
             </div>
             <div class="editor-section">
-                <h4>Background gradient</h4>
+                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Design</h4>
+                <div class="style-editor">
+                    <label class="spectrum-Body--sizeS">Color</label>
+                    <div class="spectrum-Textfield">
+                        <input type="text" id="color-input" class="spectrum-Textfield-input" value="${computedStyle.color}" data-coloris>
+                    </div>
+                    <label class="spectrum-Body--sizeS">Bg Color</label>
+                    <div class="spectrum-Textfield">
+                        <input type="text" id="bg-color-input" class="spectrum-Textfield-input" value="${computedStyle.backgroundColor}" data-coloris>
+                    </div>
+                </div>
+            </div>
+            <div class="editor-section">
+                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Background gradient</h4>
                 <div class="gradient-editor">
-                    <label>Direction</label>
-                    <select id="gradient-direction-input">
-                        <option value="to right">to right</option>
-                        <option value="to left">to left</option>
-                        <option value="to top">to top</option>
-                        <option value="to bottom">to bottom</option>
-                        <option value="to top right">to top right</option>
-                        <option value="to top left">to top left</option>
-                        <option value="to bottom right">to bottom right</option>
-                        <option value="to bottom left">to bottom left</option>
-                    </select>
-                    <label>Color 1</label><input type="text" id="gradient-color1-input" value="#ffffff" data-coloris>
-                    <label>Color 2</label><input type="text" id="gradient-color2-input" value="#000000" data-coloris>
+                    <label class="spectrum-Body--sizeS">Direction</label>
+                    <div class="spectrum-Picker spectrum-Picker--sizeM">
+                        <select id="gradient-direction-input" class="spectrum-Picker-select">
+                            <option value="to right">to right</option>
+                            <option value="to left">to left</option>
+                            <option value="to top">to top</option>
+                            <option value="to bottom">to bottom</option>
+                            <option value="to top right">to top right</option>
+                            <option value="to top left">to top left</option>
+                            <option value="to bottom right">to bottom right</option>
+                            <option value="to bottom left">to bottom left</option>
+                        </select>
+                    </div>
+                    <label class="spectrum-Body--sizeS">Color 1</label>
+                    <div class="spectrum-Textfield">
+                        <input type="text" id="gradient-color1-input" class="spectrum-Textfield-input" value="#ffffff" data-coloris>
+                    </div>
+                    <label class="spectrum-Body--sizeS">Color 2</label>
+                    <div class="spectrum-Textfield">
+                        <input type="text" id="gradient-color2-input" class="spectrum-Textfield-input" value="#000000" data-coloris>
+                    </div>
                 </div>
             </div>
             <div class="editor-section">
                  <div class="style-editor">
-                    <label>Font size</label><input type="text" id="font-size-input" value="${computedStyle.fontSize}">
-
-                    <label>Margin</label>
-                    <div class="grid-inputs">
-                        <input type="text" id="margin-top-input" placeholder="top" value="${marginValues.top}">
-                        <input type="text" id="margin-right-input" placeholder="right" value="${marginValues.right}">
-                        <input type="text" id="margin-bottom-input" placeholder="bottom" value="${marginValues.bottom}">
-                        <input type="text" id="margin-left-input" placeholder="left" value="${marginValues.left}">
+                    <label class="spectrum-Body--sizeS">Font size</label>
+                    <div class="spectrum-Textfield">
+                        <input type="text" id="font-size-input" class="spectrum-Textfield-input" value="${computedStyle.fontSize}">
                     </div>
 
-                    <label>Padding</label>
+                    <label class="spectrum-Body--sizeS">Margin</label>
                     <div class="grid-inputs">
-                        <input type="text" id="padding-top-input" placeholder="top" value="${paddingValues.top}">
-                        <input type="text" id="padding-right-input" placeholder="right" value="${paddingValues.right}">
-                        <input type="text" id="padding-bottom-input" placeholder="bottom" value="${paddingValues.bottom}">
-                        <input type="text" id="padding-left-input" placeholder="left" value="${paddingValues.left}">
+                        <div class="spectrum-Textfield"><input type="text" id="margin-top-input" class="spectrum-Textfield-input" placeholder="top" value="${marginValues.top}"></div>
+                        <div class="spectrum-Textfield"><input type="text" id="margin-right-input" class="spectrum-Textfield-input" placeholder="right" value="${marginValues.right}"></div>
+                        <div class="spectrum-Textfield"><input type="text" id="margin-bottom-input" class="spectrum-Textfield-input" placeholder="bottom" value="${marginValues.bottom}"></div>
+                        <div class="spectrum-Textfield"><input type="text" id="margin-left-input" class="spectrum-Textfield-input" placeholder="left" value="${marginValues.left}"></div>
                     </div>
 
-                    <label>Border-radius</label>
+                    <label class="spectrum-Body--sizeS">Padding</label>
                     <div class="grid-inputs">
-                        <input type="text" id="border-radius-top-left-input" placeholder="top-left" value="${borderRadiusValues.topLeft}">
-                        <input type="text" id="border-radius-top-right-input" placeholder="top-right" value="${borderRadiusValues.topRight}">
-                        <input type="text" id="border-radius-bottom-right-input" placeholder="bottom-right" value="${borderRadiusValues.bottomRight}">
-                        <input type="text" id="border-radius-bottom-left-input" placeholder="bottom-left" value="${borderRadiusValues.bottomLeft}">
+                        <div class="spectrum-Textfield"><input type="text" id="padding-top-input" class="spectrum-Textfield-input" placeholder="top" value="${paddingValues.top}"></div>
+                        <div class="spectrum-Textfield"><input type="text" id="padding-right-input" class="spectrum-Textfield-input" placeholder="right" value="${paddingValues.right}"></div>
+                        <div class="spectrum-Textfield"><input type="text" id="padding-bottom-input" class="spectrum-Textfield-input" placeholder="bottom" value="${paddingValues.bottom}"></div>
+                        <div class="spectrum-Textfield"><input type="text" id="padding-left-input" class="spectrum-Textfield-input" placeholder="left" value="${paddingValues.left}"></div>
+                    </div>
+
+                    <label class="spectrum-Body--sizeS">Border-radius</label>
+                    <div class="grid-inputs">
+                        <div class="spectrum-Textfield"><input type="text" id="border-radius-top-left-input" class="spectrum-Textfield-input" placeholder="top-left" value="${borderRadiusValues.topLeft}"></div>
+                        <div class="spectrum-Textfield"><input type="text" id="border-radius-top-right-input" class="spectrum-Textfield-input" placeholder="top-right" value="${borderRadiusValues.topRight}"></div>
+                        <div class="spectrum-Textfield"><input type="text" id="border-radius-bottom-right-input" class="spectrum-Textfield-input" placeholder="bottom-right" value="${borderRadiusValues.bottomRight}"></div>
+                        <div class="spectrum-Textfield"><input type="text" id="border-radius-bottom-left-input" class="spectrum-Textfield-input" placeholder="bottom-left" value="${borderRadiusValues.bottomLeft}"></div>
                     </div>
                 </div>
             </div>
@@ -242,15 +272,19 @@ function createEditorPanel(element) {
 
     panel.innerHTML = `
         <div class="editor-header">
-            <h3>${panelTitle}</h3>
-            <button id="close-editor">×</button>
+            <h3 class="spectrum-Heading spectrum-Heading--sizeS">${panelTitle}</h3>
+            <button id="close-editor" class="spectrum-ActionButton spectrum-ActionButton--quiet">
+                <svg class="spectrum-Icon spectrum-Icon--sizeM" focusable="false" aria-hidden="true" aria-label="Close">
+                    <use xlink:href="#spectrum-icon-18-Cross" />
+                </svg>
+            </button>
         </div>
         <div class="editor-content">
             ${editorContent}
             <div class="editor-section">
-                <h4>Accessibility</h4>
-                <p><strong>ARIA Role:</strong> ${ariaRole}</p>
-                <p><strong>Contrast Ratio:</strong> ${contrastRatio}</p>
+                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Accessibility</h4>
+                <p class="spectrum-Body--sizeS"><strong>ARIA Role:</strong> ${ariaRole}</p>
+                <p class="spectrum-Body--sizeS"><strong>Contrast Ratio:</strong> ${contrastRatio}</p>
             </div>
         </div>
     `;

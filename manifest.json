@@ -17,7 +17,16 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["coloris.min.js", "coloris.min.css", "override.css"],
+      "resources": [
+        "coloris.min.js",
+        "coloris.min.css",
+        "override.css",
+        "node_modules/@spectrum-css/vars/dist/spectrum-dark.css",
+        "node_modules/@spectrum-css/typography/dist/index.min.css",
+        "node_modules/@spectrum-css/textfield/dist/index.min.css",
+        "node_modules/@spectrum-css/button/dist/index.min.css",
+        "node_modules/@spectrum-css/picker/dist/index.min.css"
+      ],
       "matches": ["<all_urls>"]
     }
   ]
