@@ -141,15 +141,20 @@ function createEditorPanel(element) {
     const hasBackgroundImage = computedStyle.backgroundImage !== 'none';
 
     let editorContent;
+    let panelTitle = "Dev Peek";
 
     if (isImageElement || hasBackgroundImage) {
+        panelTitle = "Image Grabber";
         editorContent = `
             <div class="editor-section">
-                <h4>Image Grabber</h4>
-                <p>Upload or paste an image to replace the current one.</p>
-                <input type="file" id="image-upload-input" accept="image/*">
-                <div id="paste-zone" style="border: 2px dashed #ccc; padding: 20px; text-align: center; margin-top: 10px;">
-                    Paste Image Here
+                <p>Upload an image to replace the current one</p>
+            </div>
+            <div class="editor-section">
+                <h4>Image</h4>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="image-upload-input" accept="image/*" class="file-upload-input">
+                    <label for="image-upload-input" class="file-upload-button">Chose file</label>
+                    <span id="file-name" class="file-name">No file chosen</span>
                 </div>
             </div>
         `;
@@ -237,7 +242,7 @@ function createEditorPanel(element) {
 
     panel.innerHTML = `
         <div class="editor-header">
-            <h3>Dev Peek</h3>
+            <h3>${panelTitle}</h3>
             <button id="close-editor">×</button>
         </div>
         <div class="editor-content">
@@ -285,17 +290,15 @@ function createEditorPanel(element) {
             }
         };
 
-        document.getElementById('image-upload-input').addEventListener('change', (e) => {
-            handleImageFile(e.target.files[0]);
-        });
+        const imageUploadInput = document.getElementById('image-upload-input');
+        const fileNameSpan = document.getElementById('file-name');
 
-        document.getElementById('paste-zone').addEventListener('paste', (e) => {
-            e.preventDefault();
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (const item of items) {
-                if (item.type.indexOf('image') === 0) {
-                    handleImageFile(item.getAsFile());
-                }
+        imageUploadInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileNameSpan.textContent = e.target.files[0].name;
+                handleImageFile(e.target.files[0]);
+            } else {
+                fileNameSpan.textContent = 'No file chosen';
             }
         });
     } else {

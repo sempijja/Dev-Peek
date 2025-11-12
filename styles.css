@@ -106,3 +106,28 @@
     margin: 0;
     font-size: 12px;
 }
+
+.file-upload-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-upload-input {
+    display: none;
+}
+
+.file-upload-button {
+    background-color: #0070f3;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.file-name {
+    font-size: 12px;
+    color: #aaa;
+}
