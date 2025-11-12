@@ -13,12 +13,7 @@
     "default_title": "Dev Peek"
   },
   "background": {
-    "page": "background.html"
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "dev-peek@example.com"
-    }
+    "service_worker": "background.js"
   },
   "web_accessible_resources": [
     {

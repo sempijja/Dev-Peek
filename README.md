@@ -6,15 +6,15 @@ Dev Peek is a powerful, developer-friendly browser extension that brings Figma-l
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (which includes npm)
-- [Firefox](https://www.mozilla.org/firefox/new/) or [Chrome](https://www.google.com/chrome/)
+- [Node.js](https://nodejs.org/) (which includes npm).
+- A Chromium-based browser (e.g., Google Chrome, Microsoft Edge, Brave).
 
-### Installation
+### Installation & Development
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/dev-peek.git
-    cd dev-peek
+    git clone https://github.com/sempijja/Dev-Peek.git
+    cd Dev-Peek
     ```
 
 2.  **Install dependencies:**
@@ -22,17 +22,13 @@ Dev Peek is a powerful, developer-friendly browser extension that brings Figma-l
     npm install
     ```
 
-### Development
+3.  **Run the extension:**
+    ```bash
+    npm start
+    ```
+    This command will launch a new browser instance with the extension automatically installed. It supports hot-reloading, so any changes you make to the source code will be reflected in the browser instantly.
 
-To run the extension in development mode, use the following command:
-
-```bash
-npm start
-```
-
-This will launch a new browser instance with the extension installed. The extension will automatically reload as you make changes to the code.
-
-### Building
+## Building for Production
 
 To build the extension for production, run the following command:
 
@@ -40,17 +36,19 @@ To build the extension for production, run the following command:
 npm run build
 ```
 
-This will create a `.zip` file in the `web-ext-artifacts` directory, which can be uploaded to the Chrome Web Store or Mozilla Add-ons.
+This will create a `.zip` file in the `web-ext-artifacts` directory, which can be uploaded to the Chrome Web Store or other extension marketplaces.
 
-### Linting
+## Linting / Testing
 
-To check the code for potential errors and style issues, run the following command:
+To check the code for potential errors and style issues, run the linter:
 
 ```bash
 npm run lint
 ```
-
-This is also the command that is run when you execute `npm test`.
+The project's test command is an alias for linting:
+```bash
+npm test
+```
 
 ---
 
@@ -63,20 +61,6 @@ This is also the command that is run when you execute `npm test`.
 - **Modern UI**: A clean, minimalist interface that feels right at home in your browser.
 
 ---
-
-## **Installation**
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/sempijja/Dev-Peek
-   cd Dev-Peek
-   ```
-
-2. Open your browser and navigate to the extensions page (e.g., `chrome://extensions/` or `edge://extensions/`).
-
-3. Enable "Developer mode".
-
-4. Click "Load unpacked" and select the cloned `Dev-Peek` directory.
 
 ---
 
