@@ -17,7 +17,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["coloris.min.js", "coloris.min.css"],
+      "resources": ["coloris.min.js", "coloris.min.css", "override.css"],
       "matches": ["<all_urls>"]
     }
   ]

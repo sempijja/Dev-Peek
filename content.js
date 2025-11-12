@@ -92,8 +92,14 @@ function createEditorPanel(element) {
         existingPanel.remove();
     }
 
-    // Inject the Coloris script
+    // Inject the Coloris script and CSS override
     if (!document.querySelector('script[src*="coloris.min.js"]')) {
+        // Inject Override CSS
+        const overrideLink = document.createElement('link');
+        overrideLink.rel = 'stylesheet';
+        overrideLink.href = chrome.runtime.getURL('override.css');
+        document.head.appendChild(overrideLink);
+
         const script = document.createElement('script');
         script.src = chrome.runtime.getURL('coloris.min.js');
         document.head.appendChild(script);
