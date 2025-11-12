@@ -39,11 +39,9 @@ function cleanup() {
     removeHighlight();
 }
 
-// Initial state check
-chrome.storage.local.get('inspectModeActive', (data) => {
-    isInspectModeActive = !!data.inspectModeActive;
-    toggleInspect(isInspectModeActive);
-});
+// The script is now injected on demand, so we can assume it's active.
+isInspectModeActive = true;
+toggleInspect(isInspectModeActive);
 
 
 function handleMouseOver(event) {

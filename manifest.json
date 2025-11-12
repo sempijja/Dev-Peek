@@ -10,8 +10,7 @@
       "48": "icons/eye48x48.png",
       "128": "icons/eye128.png"
     },
-    "default_title": "Dev Peek",
-    "default_popup": "popup.html"
+    "default_title": "Dev Peek"
   },
   "background": {
     "service_worker": "background.js"
