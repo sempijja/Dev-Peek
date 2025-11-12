@@ -154,28 +154,82 @@ function createEditorPanel(element) {
             </div>
         `;
     } else {
+        const marginValues = {
+            top: computedStyle.marginTop,
+            right: computedStyle.marginRight,
+            bottom: computedStyle.marginBottom,
+            left: computedStyle.marginLeft
+        };
+        const paddingValues = {
+            top: computedStyle.paddingTop,
+            right: computedStyle.paddingRight,
+            bottom: computedStyle.paddingBottom,
+            left: computedStyle.paddingLeft
+        };
+        const borderRadiusValues = {
+            topLeft: computedStyle.borderTopLeftRadius,
+            topRight: computedStyle.borderTopRightRadius,
+            bottomRight: computedStyle.borderBottomRightRadius,
+            bottomLeft: computedStyle.borderBottomLeftRadius
+        };
+
         editorContent = `
             <div class="editor-section">
                 <h4>Text</h4>
                 <textarea id="text-editor">${element.innerText}</textarea>
             </div>
             <div class="editor-section">
-                <h4>Styles</h4>
+                <h4>Design</h4>
                 <div class="style-editor">
                     <label>Color</label><input type="text" id="color-input" value="${computedStyle.color}" data-coloris>
                     <label>Bg Color</label><input type="text" id="bg-color-input" value="${computedStyle.backgroundColor}" data-coloris>
-                    <label>Font Size</label><input type="text" id="font-size-input" value="${computedStyle.fontSize}">
-                    <label>Margin</label><input type="text" id="margin-input" value="${computedStyle.margin}">
-                    <label>Padding</label><input type="text" id="padding-input" value="${computedStyle.padding}">
-                    <label>Border Radius</label><input type="text" id="border-radius-input" value="${computedStyle.borderRadius}">
                 </div>
             </div>
             <div class="editor-section">
-                <h4>Background Gradient</h4>
+                <h4>Background gradient</h4>
                 <div class="gradient-editor">
-                    <label>Direction</label><input type="text" id="gradient-direction-input" value="to right">
+                    <label>Direction</label>
+                    <select id="gradient-direction-input">
+                        <option value="to right">to right</option>
+                        <option value="to left">to left</option>
+                        <option value="to top">to top</option>
+                        <option value="to bottom">to bottom</option>
+                        <option value="to top right">to top right</option>
+                        <option value="to top left">to top left</option>
+                        <option value="to bottom right">to bottom right</option>
+                        <option value="to bottom left">to bottom left</option>
+                    </select>
                     <label>Color 1</label><input type="text" id="gradient-color1-input" value="#ffffff" data-coloris>
                     <label>Color 2</label><input type="text" id="gradient-color2-input" value="#000000" data-coloris>
+                </div>
+            </div>
+            <div class="editor-section">
+                 <div class="style-editor">
+                    <label>Font size</label><input type="text" id="font-size-input" value="${computedStyle.fontSize}">
+
+                    <label>Margin</label>
+                    <div class="grid-inputs">
+                        <input type="text" id="margin-top-input" placeholder="top" value="${marginValues.top}">
+                        <input type="text" id="margin-right-input" placeholder="right" value="${marginValues.right}">
+                        <input type="text" id="margin-bottom-input" placeholder="bottom" value="${marginValues.bottom}">
+                        <input type="text" id="margin-left-input" placeholder="left" value="${marginValues.left}">
+                    </div>
+
+                    <label>Padding</label>
+                    <div class="grid-inputs">
+                        <input type="text" id="padding-top-input" placeholder="top" value="${paddingValues.top}">
+                        <input type="text" id="padding-right-input" placeholder="right" value="${paddingValues.right}">
+                        <input type="text" id="padding-bottom-input" placeholder="bottom" value="${paddingValues.bottom}">
+                        <input type="text" id="padding-left-input" placeholder="left" value="${paddingValues.left}">
+                    </div>
+
+                    <label>Border-radius</label>
+                    <div class="grid-inputs">
+                        <input type="text" id="border-radius-top-left-input" placeholder="top-left" value="${borderRadiusValues.topLeft}">
+                        <input type="text" id="border-radius-top-right-input" placeholder="top-right" value="${borderRadiusValues.topRight}">
+                        <input type="text" id="border-radius-bottom-right-input" placeholder="bottom-right" value="${borderRadiusValues.bottomRight}">
+                        <input type="text" id="border-radius-bottom-left-input" placeholder="bottom-left" value="${borderRadiusValues.bottomLeft}">
+                    </div>
                 </div>
             </div>
         `;
@@ -183,7 +237,7 @@ function createEditorPanel(element) {
 
     panel.innerHTML = `
         <div class="editor-header">
-            <h3>Inspect Panel</h3>
+            <h3>Dev Peek</h3>
             <button id="close-editor">×</button>
         </div>
         <div class="editor-content">
@@ -257,14 +311,27 @@ function createEditorPanel(element) {
     document.getElementById('font-size-input').addEventListener('input', (e) => {
         element.style.fontSize = e.target.value;
     });
-    document.getElementById('margin-input').addEventListener('input', (e) => {
-        element.style.margin = e.target.value;
+
+    // Margin listeners
+    ['top', 'right', 'bottom', 'left'].forEach(side => {
+        document.getElementById(`margin-${side}-input`).addEventListener('input', (e) => {
+            element.style[`margin${side.charAt(0).toUpperCase() + side.slice(1)}`] = e.target.value;
+        });
     });
-    document.getElementById('padding-input').addEventListener('input', (e) => {
-        element.style.padding = e.target.value;
+
+    // Padding listeners
+    ['top', 'right', 'bottom', 'left'].forEach(side => {
+        document.getElementById(`padding-${side}-input`).addEventListener('input', (e) => {
+            element.style[`padding${side.charAt(0).toUpperCase() + side.slice(1)}`] = e.target.value;
+        });
     });
-    document.getElementById('border-radius-input').addEventListener('input', (e) => {
-        element.style.borderRadius = e.target.value;
+
+    // Border-radius listeners
+    ['top-left', 'top-right', 'bottom-right', 'bottom-left'].forEach(corner => {
+        document.getElementById(`border-radius-${corner}-input`).addEventListener('input', (e) => {
+            const camelCaseCorner = corner.replace(/-([a-z])/g, g => g[1].toUpperCase());
+            element.style[`border${camelCaseCorner.charAt(0).toUpperCase() + camelCaseCorner.slice(1)}Radius`] = e.target.value;
+        });
     });
 
     // Gradient listeners
