@@ -13,14 +13,18 @@
     "default_title": "Dev Peek"
   },
   "background": {
-    "service_worker": "background.js"
+    "page": "background.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "dev-peek@example.com"
+    }
   },
   "web_accessible_resources": [
     {
       "resources": [
         "coloris.min.js",
         "coloris.min.css",
-        "override.css",
         "node_modules/@spectrum-css/vars/dist/spectrum-dark.css",
         "node_modules/@spectrum-css/typography/dist/index.min.css",
         "node_modules/@spectrum-css/textfield/dist/index.min.css",

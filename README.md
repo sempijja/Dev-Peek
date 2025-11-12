@@ -2,6 +2,56 @@
 
 Dev Peek is a powerful, developer-friendly browser extension that brings Figma-like design and inspection capabilities directly to your web page. It provides a seamless way to inspect and edit UI elements in real-time, displaying an overlay and a draggable editor panel with detailed information and live editing tools.
 
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (which includes npm)
+- [Firefox](https://www.mozilla.org/firefox/new/) or [Chrome](https://www.google.com/chrome/)
+
+### Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/dev-peek.git
+    cd dev-peek
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+### Development
+
+To run the extension in development mode, use the following command:
+
+```bash
+npm start
+```
+
+This will launch a new browser instance with the extension installed. The extension will automatically reload as you make changes to the code.
+
+### Building
+
+To build the extension for production, run the following command:
+
+```bash
+npm run build
+```
+
+This will create a `.zip` file in the `web-ext-artifacts` directory, which can be uploaded to the Chrome Web Store or Mozilla Add-ons.
+
+### Linting
+
+To check the code for potential errors and style issues, run the following command:
+
+```bash
+npm run lint
+```
+
+This is also the command that is run when you execute `npm test`.
+
 ---
 
 ## **Features**

@@ -1,3 +1,49 @@
+// Helper functions for creating Spectrum UI elements
+function createSpectrumHeading(level, size, text) {
+    const heading = document.createElement(level);
+    heading.className = `spectrum-Heading spectrum-Heading--size${size}`;
+    heading.textContent = text;
+    return heading;
+}
+
+function createSpectrumBody(size, text) {
+    const body = document.createElement('p');
+    body.className = `spectrum-Body--size${size}`;
+    body.textContent = text;
+    return body;
+}
+
+function createSpectrumTextfield(id, value, isColor = false) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'spectrum-Textfield';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = id;
+    input.className = 'spectrum-Textfield-input';
+    input.value = value;
+    if (isColor) {
+        input.setAttribute('data-coloris', '');
+    }
+    wrapper.appendChild(input);
+    return wrapper;
+}
+
+function createSpectrumPicker(id, options) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'spectrum-Picker spectrum-Picker--sizeM';
+    const select = document.createElement('select');
+    select.id = id;
+    select.className = 'spectrum-Picker-select';
+    options.forEach(optionValue => {
+        const option = document.createElement('option');
+        option.value = optionValue;
+        option.textContent = optionValue;
+        select.appendChild(option);
+    });
+    wrapper.appendChild(select);
+    return wrapper;
+}
+
 let isInspectModeActive = false;
 let currentObjectUrl = null;
 
@@ -108,8 +154,6 @@ function createEditorPanel(element) {
         injectStylesheet('node_modules/@spectrum-css/button/dist/index.min.css');
         injectStylesheet('node_modules/@spectrum-css/picker/dist/index.min.css');
 
-        // Inject Override CSS
-        injectStylesheet('override.css');
 
         const script = document.createElement('script');
         script.src = chrome.runtime.getURL('coloris.min.js');
@@ -139,6 +183,7 @@ function createEditorPanel(element) {
 
     const panel = document.createElement('div');
     panel.id = 'editor-panel';
+    panel.classList.add('spectrum-Well');
 
     const computedStyle = window.getComputedStyle(element);
 
@@ -151,143 +196,168 @@ function createEditorPanel(element) {
     const isImageElement = element.tagName === 'IMG';
     const hasBackgroundImage = computedStyle.backgroundImage !== 'none';
 
-    let editorContent;
     let panelTitle = "Dev Peek";
+
+    const header = document.createElement('div');
+    header.className = 'editor-header';
+
+    const title = document.createElement('h3');
+    title.className = 'spectrum-Heading spectrum-Heading--sizeS';
+    title.textContent = panelTitle;
+    header.appendChild(title);
+
+    const closeButton = document.createElement('button');
+    closeButton.id = 'close-editor';
+    closeButton.className = 'spectrum-ActionButton spectrum-ActionButton--quiet';
+    const closeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    closeIcon.setAttribute('class', 'spectrum-Icon spectrum-Icon--sizeM');
+    closeIcon.setAttribute('focusable', 'false');
+    closeIcon.setAttribute('aria-hidden', 'true');
+    closeIcon.setAttribute('aria-label', 'Close');
+    const closeIconUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    closeIconUse.setAttribute('xlink:href', '#spectrum-icon-18-Cross');
+    closeIcon.appendChild(closeIconUse);
+    closeButton.appendChild(closeIcon);
+    header.appendChild(closeButton);
+
+    panel.appendChild(header);
+
+    const content = document.createElement('div');
+    content.className = 'editor-content';
 
     if (isImageElement || hasBackgroundImage) {
         panelTitle = "Image Grabber";
-        editorContent = `
-            <div class="editor-section">
-                <p class="spectrum-Body--sizeS">Upload an image to replace the current one</p>
-            </div>
-            <div class="editor-section">
-                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Image</h4>
-                <div class="file-upload-wrapper">
-                    <input type="file" id="image-upload-input" accept="image/*" class="file-upload-input">
-                    <label for="image-upload-input" class="spectrum-Button spectrum-Button--primary spectrum-Button--sizeM">Chose file</label>
-                    <span id="file-name" class="spectrum-Body--sizeS file-name">No file chosen</span>
-                </div>
-            </div>
-        `;
+        title.textContent = panelTitle;
+
+        const imageUploaderSection = document.createElement('div');
+        imageUploaderSection.className = 'editor-section';
+        imageUploaderSection.appendChild(createSpectrumBody('S', 'Upload an image to replace the current one'));
+        content.appendChild(imageUploaderSection);
+
+        const imageSection = document.createElement('div');
+        imageSection.className = 'editor-section';
+        imageSection.appendChild(createSpectrumHeading('h4', 'XS', 'Image'));
+        const fileUploadWrapper = document.createElement('div');
+        fileUploadWrapper.className = 'file-upload-wrapper';
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = 'image-upload-input';
+        fileInput.accept = 'image/*';
+        fileInput.className = 'file-upload-input';
+        fileUploadWrapper.appendChild(fileInput);
+        const fileLabel = document.createElement('label');
+        fileLabel.htmlFor = 'image-upload-input';
+        fileLabel.className = 'spectrum-Button spectrum-Button--primary spectrum-Button--sizeM';
+        fileLabel.textContent = 'Chose file';
+        fileUploadWrapper.appendChild(fileLabel);
+        const fileName = document.createElement('span');
+        fileName.id = 'file-name';
+        fileName.className = 'spectrum-Body--sizeS file-name';
+        fileName.textContent = 'No file chosen';
+        fileUploadWrapper.appendChild(fileName);
+        imageSection.appendChild(fileUploadWrapper);
+        content.appendChild(imageSection);
     } else {
-        const marginValues = {
-            top: computedStyle.marginTop,
-            right: computedStyle.marginRight,
-            bottom: computedStyle.marginBottom,
-            left: computedStyle.marginLeft
-        };
-        const paddingValues = {
-            top: computedStyle.paddingTop,
-            right: computedStyle.paddingRight,
-            bottom: computedStyle.paddingBottom,
-            left: computedStyle.paddingLeft
-        };
-        const borderRadiusValues = {
-            topLeft: computedStyle.borderTopLeftRadius,
-            topRight: computedStyle.borderTopRightRadius,
-            bottomRight: computedStyle.borderBottomRightRadius,
-            bottomLeft: computedStyle.borderBottomLeftRadius
-        };
+        const textSection = document.createElement('div');
+        textSection.className = 'editor-section';
+        textSection.appendChild(createSpectrumHeading('h4', 'XS', 'Text'));
+        const textAreaWrapper = document.createElement('div');
+        textAreaWrapper.className = 'spectrum-TextArea';
+        const textArea = document.createElement('textarea');
+        textArea.id = 'text-editor';
+        textArea.className = 'spectrum-TextArea-input';
+        textArea.textContent = element.innerText;
+        textAreaWrapper.appendChild(textArea);
+        textSection.appendChild(textAreaWrapper);
+        content.appendChild(textSection);
 
-        editorContent = `
-            <div class="editor-section">
-                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Text</h4>
-                <div class="spectrum-TextArea">
-                    <textarea id="text-editor" class="spectrum-TextArea-input">${element.innerText}</textarea>
-                </div>
-            </div>
-            <div class="editor-section">
-                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Design</h4>
-                <div class="style-editor">
-                    <label class="spectrum-Body--sizeS">Color</label>
-                    <div class="spectrum-Textfield">
-                        <input type="text" id="color-input" class="spectrum-Textfield-input" value="${computedStyle.color}" data-coloris>
-                    </div>
-                    <label class="spectrum-Body--sizeS">Bg Color</label>
-                    <div class="spectrum-Textfield">
-                        <input type="text" id="bg-color-input" class="spectrum-Textfield-input" value="${computedStyle.backgroundColor}" data-coloris>
-                    </div>
-                </div>
-            </div>
-            <div class="editor-section">
-                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Background gradient</h4>
-                <div class="gradient-editor">
-                    <label class="spectrum-Body--sizeS">Direction</label>
-                    <div class="spectrum-Picker spectrum-Picker--sizeM">
-                        <select id="gradient-direction-input" class="spectrum-Picker-select">
-                            <option value="to right">to right</option>
-                            <option value="to left">to left</option>
-                            <option value="to top">to top</option>
-                            <option value="to bottom">to bottom</option>
-                            <option value="to top right">to top right</option>
-                            <option value="to top left">to top left</option>
-                            <option value="to bottom right">to bottom right</option>
-                            <option value="to bottom left">to bottom left</option>
-                        </select>
-                    </div>
-                    <label class="spectrum-Body--sizeS">Color 1</label>
-                    <div class="spectrum-Textfield">
-                        <input type="text" id="gradient-color1-input" class="spectrum-Textfield-input" value="#ffffff" data-coloris>
-                    </div>
-                    <label class="spectrum-Body--sizeS">Color 2</label>
-                    <div class="spectrum-Textfield">
-                        <input type="text" id="gradient-color2-input" class="spectrum-Textfield-input" value="#000000" data-coloris>
-                    </div>
-                </div>
-            </div>
-            <div class="editor-section">
-                 <div class="style-editor">
-                    <label class="spectrum-Body--sizeS">Font size</label>
-                    <div class="spectrum-Textfield">
-                        <input type="text" id="font-size-input" class="spectrum-Textfield-input" value="${computedStyle.fontSize}">
-                    </div>
+        const designSection = document.createElement('div');
+        designSection.className = 'editor-section';
+        designSection.appendChild(createSpectrumHeading('h4', 'XS', 'Design'));
+        const styleEditor = document.createElement('div');
+        styleEditor.className = 'style-editor';
+        styleEditor.appendChild(createSpectrumBody('S', 'Color'));
+        styleEditor.appendChild(createSpectrumTextfield('color-input', computedStyle.color, true));
+        styleEditor.appendChild(createSpectrumBody('S', 'Bg Color'));
+        styleEditor.appendChild(createSpectrumTextfield('bg-color-input', computedStyle.backgroundColor, true));
+        designSection.appendChild(styleEditor);
+        content.appendChild(designSection);
 
-                    <label class="spectrum-Body--sizeS">Margin</label>
-                    <div class="grid-inputs">
-                        <div class="spectrum-Textfield"><input type="text" id="margin-top-input" class="spectrum-Textfield-input" placeholder="top" value="${marginValues.top}"></div>
-                        <div class="spectrum-Textfield"><input type="text" id="margin-right-input" class="spectrum-Textfield-input" placeholder="right" value="${marginValues.right}"></div>
-                        <div class="spectrum-Textfield"><input type="text" id="margin-bottom-input" class="spectrum-Textfield-input" placeholder="bottom" value="${marginValues.bottom}"></div>
-                        <div class="spectrum-Textfield"><input type="text" id="margin-left-input" class="spectrum-Textfield-input" placeholder="left" value="${marginValues.left}"></div>
-                    </div>
+        const gradientSection = document.createElement('div');
+        gradientSection.className = 'editor-section';
+        gradientSection.appendChild(createSpectrumHeading('h4', 'XS', 'Background gradient'));
+        const gradientEditor = document.createElement('div');
+        gradientEditor.className = 'gradient-editor';
+        gradientEditor.appendChild(createSpectrumBody('S', 'Direction'));
+        gradientEditor.appendChild(createSpectrumPicker('gradient-direction-input', ['to right', 'to left', 'to top', 'to bottom', 'to top right', 'to top left', 'to bottom right', 'to bottom left']));
+        gradientEditor.appendChild(createSpectrumBody('S', 'Color 1'));
+        gradientEditor.appendChild(createSpectrumTextfield('gradient-color1-input', '#ffffff', true));
+        gradientEditor.appendChild(createSpectrumBody('S', 'Color 2'));
+        gradientEditor.appendChild(createSpectrumTextfield('gradient-color2-input', '#000000', true));
+        gradientSection.appendChild(gradientEditor);
+        content.appendChild(gradientSection);
 
-                    <label class="spectrum-Body--sizeS">Padding</label>
-                    <div class="grid-inputs">
-                        <div class="spectrum-Textfield"><input type="text" id="padding-top-input" class="spectrum-Textfield-input" placeholder="top" value="${paddingValues.top}"></div>
-                        <div class="spectrum-Textfield"><input type="text" id="padding-right-input" class="spectrum-Textfield-input" placeholder="right" value="${paddingValues.right}"></div>
-                        <div class="spectrum-Textfield"><input type="text" id="padding-bottom-input" class="spectrum-Textfield-input" placeholder="bottom" value="${paddingValues.bottom}"></div>
-                        <div class="spectrum-Textfield"><input type="text" id="padding-left-input" class="spectrum-Textfield-input" placeholder="left" value="${paddingValues.left}"></div>
-                    </div>
+        const stylesSection = document.createElement('div');
+        stylesSection.className = 'editor-section';
+        const styleEditor2 = document.createElement('div');
+        styleEditor2.className = 'style-editor';
+        styleEditor2.appendChild(createSpectrumBody('S', 'Font size'));
+        styleEditor2.appendChild(createSpectrumTextfield('font-size-input', computedStyle.fontSize));
 
-                    <label class="spectrum-Body--sizeS">Border-radius</label>
-                    <div class="grid-inputs">
-                        <div class="spectrum-Textfield"><input type="text" id="border-radius-top-left-input" class="spectrum-Textfield-input" placeholder="top-left" value="${borderRadiusValues.topLeft}"></div>
-                        <div class="spectrum-Textfield"><input type="text" id="border-radius-top-right-input" class="spectrum-Textfield-input" placeholder="top-right" value="${borderRadiusValues.topRight}"></div>
-                        <div class="spectrum-Textfield"><input type="text" id="border-radius-bottom-right-input" class="spectrum-Textfield-input" placeholder="bottom-right" value="${borderRadiusValues.bottomRight}"></div>
-                        <div class="spectrum-Textfield"><input type="text" id="border-radius-bottom-left-input" class="spectrum-Textfield-input" placeholder="bottom-left" value="${borderRadiusValues.bottomLeft}"></div>
-                    </div>
-                </div>
-            </div>
-        `;
+        const marginValues = { top: computedStyle.marginTop, right: computedStyle.marginRight, bottom: computedStyle.marginBottom, left: computedStyle.marginLeft };
+        styleEditor2.appendChild(createSpectrumBody('S', 'Margin'));
+        const marginGrid = document.createElement('div');
+        marginGrid.className = 'grid-inputs';
+        Object.entries(marginValues).forEach(([side, value]) => {
+            marginGrid.appendChild(createSpectrumTextfield(`margin-${side}-input`, value));
+        });
+        styleEditor2.appendChild(marginGrid);
+
+        const paddingValues = { top: computedStyle.paddingTop, right: computedStyle.paddingRight, bottom: computedStyle.paddingBottom, left: computedStyle.paddingLeft };
+        styleEditor2.appendChild(createSpectrumBody('S', 'Padding'));
+        const paddingGrid = document.createElement('div');
+        paddingGrid.className = 'grid-inputs';
+        Object.entries(paddingValues).forEach(([side, value]) => {
+            paddingGrid.appendChild(createSpectrumTextfield(`padding-${side}-input`, value));
+        });
+        styleEditor2.appendChild(paddingGrid);
+
+        const borderRadiusValues = { 'top-left': computedStyle.borderTopLeftRadius, 'top-right': computedStyle.borderTopRightRadius, 'bottom-right': computedStyle.borderBottomRightRadius, 'bottom-left': computedStyle.borderBottomLeftRadius };
+        styleEditor2.appendChild(createSpectrumBody('S', 'Border-radius'));
+        const borderRadiusGrid = document.createElement('div');
+        borderRadiusGrid.className = 'grid-inputs';
+        Object.entries(borderRadiusValues).forEach(([corner, value]) => {
+            borderRadiusGrid.appendChild(createSpectrumTextfield(`border-radius-${corner}-input`, value));
+        });
+        styleEditor2.appendChild(borderRadiusGrid);
+
+        stylesSection.appendChild(styleEditor2);
+        content.appendChild(stylesSection);
     }
 
-    panel.innerHTML = `
-        <div class="editor-header">
-            <h3 class="spectrum-Heading spectrum-Heading--sizeS">${panelTitle}</h3>
-            <button id="close-editor" class="spectrum-ActionButton spectrum-ActionButton--quiet">
-                <svg class="spectrum-Icon spectrum-Icon--sizeM" focusable="false" aria-hidden="true" aria-label="Close">
-                    <use xlink:href="#spectrum-icon-18-Cross" />
-                </svg>
-            </button>
-        </div>
-        <div class="editor-content">
-            ${editorContent}
-            <div class="editor-section">
-                <h4 class="spectrum-Heading spectrum-Heading--sizeXS">Accessibility</h4>
-                <p class="spectrum-Body--sizeS"><strong>ARIA Role:</strong> ${ariaRole}</p>
-                <p class="spectrum-Body--sizeS"><strong>Contrast Ratio:</strong> ${contrastRatio}</p>
-            </div>
-        </div>
-    `;
+    const accessibilitySection = document.createElement('div');
+    accessibilitySection.className = 'editor-section';
+    const accessibilityTitle = document.createElement('h4');
+    accessibilityTitle.className = 'spectrum-Heading spectrum-Heading--sizeXS';
+    accessibilityTitle.textContent = 'Accessibility';
+    accessibilitySection.appendChild(accessibilityTitle);
+
+    const ariaRoleP = createSpectrumBody('S', '');
+    const ariaRoleStrong = document.createElement('strong');
+    ariaRoleStrong.textContent = 'ARIA Role: ';
+    ariaRoleP.appendChild(ariaRoleStrong);
+    ariaRoleP.append(ariaRole);
+    accessibilitySection.appendChild(ariaRoleP);
+
+    const contrastRatioP = createSpectrumBody('S', '');
+    const contrastRatioStrong = document.createElement('strong');
+    contrastRatioStrong.textContent = 'Contrast Ratio: ';
+    contrastRatioP.appendChild(contrastRatioStrong);
+    contrastRatioP.append(contrastRatio);
+    accessibilitySection.appendChild(contrastRatioP);
+
+    content.appendChild(accessibilitySection);
+    panel.appendChild(content);
 
     document.body.appendChild(panel);
 

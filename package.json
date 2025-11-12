@@ -4,7 +4,10 @@
   "description": "Dev Peek is a powerful, developer-friendly browser extension that brings Figma-like design and inspection capabilities directly to your web page. It provides a seamless way to inspect and edit UI elements in real-time, displaying an overlay and a draggable editor panel with detailed information and live editing tools.",
   "main": "background.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "web-ext run",
+    "build": "web-ext build",
+    "lint": "web-ext lint",
+    "test": "npm run lint"
   },
   "repository": {
     "type": "git",
@@ -24,5 +27,8 @@
     "@spectrum-css/textfield": "^8.2.0",
     "@spectrum-css/typography": "^8.2.0",
     "@spectrum-css/vars": "^9.0.8"
+  },
+  "devDependencies": {
+    "web-ext": "^9.1.0"
   }
 }
