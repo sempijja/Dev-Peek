@@ -92,6 +92,28 @@ function createEditorPanel(element) {
         existingPanel.remove();
     }
 
+    // Store original styles for reset functionality
+    const originalStyles = {
+        innerText: element.innerText,
+        color: element.style.color,
+        backgroundColor: element.style.backgroundColor,
+        fontSize: element.style.fontSize,
+        marginTop: element.style.marginTop,
+        marginRight: element.style.marginRight,
+        marginBottom: element.style.marginBottom,
+        marginLeft: element.style.marginLeft,
+        paddingTop: element.style.paddingTop,
+        paddingRight: element.style.paddingRight,
+        paddingBottom: element.style.paddingBottom,
+        paddingLeft: element.style.paddingLeft,
+        borderTopLeftRadius: element.style.borderTopLeftRadius,
+        borderTopRightRadius: element.style.borderTopRightRadius,
+        borderBottomRightRadius: element.style.borderBottomRightRadius,
+        borderBottomLeftRadius: element.style.borderBottomLeftRadius,
+        backgroundImage: element.style.backgroundImage,
+        src: element.tagName === 'IMG' ? element.src : null
+    };
+
     // Inject the Coloris script and CSS override
     if (!document.querySelector('script[src*="coloris.min.js"]')) {
         // Inject Override CSS
@@ -192,7 +214,7 @@ function createEditorPanel(element) {
             </div>
             <div class="editor-section">
                 <h4>Background gradient</h4>
-                <div class="gradient-editor">
+                <div class="style-editor">
                     <label>Direction</label>
                     <select id="gradient-direction-input">
                         <option value="to right">to right</option>
@@ -253,6 +275,9 @@ function createEditorPanel(element) {
                 <p><strong>Contrast Ratio:</strong> ${contrastRatio}</p>
             </div>
         </div>
+        <div class="editor-footer">
+            <button id="reset-editor">Reset</button>
+        </div>
     `;
 
     document.body.appendChild(panel);
@@ -272,6 +297,52 @@ function createEditorPanel(element) {
             currentObjectUrl = null;
         }
         panel.remove();
+    });
+
+    // Add event listener to reset button
+    document.getElementById('reset-editor').addEventListener('click', () => {
+        // Reset text content
+        if (originalStyles.innerText !== null) {
+            element.innerText = originalStyles.innerText;
+        }
+
+        // Reset styles
+        element.style.color = originalStyles.color;
+        element.style.backgroundColor = originalStyles.backgroundColor;
+        element.style.fontSize = originalStyles.fontSize;
+        element.style.marginTop = originalStyles.marginTop;
+        element.style.marginRight = originalStyles.marginRight;
+        element.style.marginBottom = originalStyles.marginBottom;
+        element.style.marginLeft = originalStyles.marginLeft;
+        element.style.paddingTop = originalStyles.paddingTop;
+        element.style.paddingRight = originalStyles.paddingRight;
+        element.style.paddingBottom = originalStyles.paddingBottom;
+        element.style.paddingLeft = originalStyles.paddingLeft;
+        element.style.borderTopLeftRadius = originalStyles.borderTopLeftRadius;
+        element.style.borderTopRightRadius = originalStyles.borderTopRightRadius;
+        element.style.borderBottomRightRadius = originalStyles.borderBottomRightRadius;
+        element.style.borderBottomLeftRadius = originalStyles.borderBottomLeftRadius;
+        element.style.backgroundImage = originalStyles.backgroundImage;
+
+        // Reset image src if it's an image element
+        if (element.tagName === 'IMG' && originalStyles.src) {
+            element.src = originalStyles.src;
+        }
+
+        // Refresh the color inputs and other fields to reflect the reset
+        if (!isImageElement && !hasBackgroundImage) {
+            const textEditor = document.getElementById('text-editor');
+            if (textEditor) textEditor.value = originalStyles.innerText;
+
+            const colorInput = document.getElementById('color-input');
+            if (colorInput) colorInput.value = computedStyle.color;
+
+            const bgColorInput = document.getElementById('bg-color-input');
+            if (bgColorInput) bgColorInput.value = computedStyle.backgroundColor;
+
+            const fontSizeInput = document.getElementById('font-size-input');
+            if (fontSizeInput) fontSizeInput.value = computedStyle.fontSize;
+        }
     });
 
     // Add event listeners for real-time editing
