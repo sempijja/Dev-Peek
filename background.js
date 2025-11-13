@@ -1,26 +1,23 @@
-let isActive = false;
-
 // Listen for clicks on the extension icon
-chrome.action.onClicked.addListener((tab) => {
-  isActive = !isActive;
+chrome.action.onClicked.addListener(async (tab) => {
+    const tabId = tab.id;
+    const currentState = await chrome.storage.session.get([`${tabId}`]);
+    const isActive = !currentState[tabId];
 
-  if (isActive) {
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ["content.js"],
-    });
-  } else {
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: () => {
-        // Remove all overlays and tooltips
-        const overlays = document.querySelectorAll(".ui-highlighter-overlay");
-        const tooltips = document.querySelectorAll(".ui-highlighter-tooltip");
-        overlays.forEach((overlay) => overlay.remove());
-        tooltips.forEach((tooltip) => tooltip.remove());
-        document.removeEventListener("mouseover", window.hoverPeekHandler);
-        document.removeEventListener("mouseout", window.hoverPeekHandlerOut);
-      },
-    });
-  }
+    await chrome.storage.session.set({ [tabId]: isActive });
+
+    if (isActive) {
+        // Inject the content script and styles
+        await chrome.scripting.insertCSS({
+            target: { tabId: tabId },
+            files: ["styles.css", "coloris.min.css"]
+        });
+        await chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            files: ["content.js"]
+        });
+    } else {
+        // Send a message to the content script to deactivate and clean up
+        await chrome.tabs.sendMessage(tabId, { action: 'deactivateInspectMode' });
+    }
 });

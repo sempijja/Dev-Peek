@@ -1,14 +1,16 @@
-# **Dev Peek**
+# **Dev Peek 2.0**
 
-Dev Peek is a lightweight and developer-friendly browser extension for Microsoft Edge. It provides a seamless way to inspect UI elements on a webpage by simply hovering over them, displaying an overlay and a tooltip with detailed information. Unlike traditional DevTools, HoverPeek allows developers to focus on the UI without compromising screen real estate.
+Dev Peek is a powerful, developer-friendly browser extension that brings Figma-like design and inspection capabilities directly to your web page. It provides a seamless way to inspect and edit UI elements in real-time, displaying an overlay and a draggable editor panel with detailed information and live editing tools.
 
 ---
 
 ## **Features**
-- **Highlight on Hover**: Adds a semi-transparent overlay on hovered elements.
-- **Tooltip Information**: Displays tag name, class names, and dimensions of the hovered element.
-- **Toggle Functionality**: Activate and deactivate the extension with a simple click on the extension icon.
-- **Lightweight and Efficient**: Designed to perform efficiently without bloating browser performance.
+- **Inspect Mode**: Activate a powerful inspect mode that highlights elements on hover
+- **Draggable Editor Panel**: A floating panel that can be moved anywhere on the screen to prevent obstruction.
+- **Live Text and Style Editing**: Edit text content, colors, background, font size, margin, and padding in real-time.
+- **Advanced Color Picker**: Includes an eyedropper tool to sample colors directly from the page.
+- **Accessibility Insights**: Displays ARIA roles and color contrast ratios to help you build more accessible websites.
+- **Modern UI**: A clean, minimalist interface that feels right at home in your browser.
 
 ---
 
@@ -17,13 +19,16 @@ Dev Peek is a lightweight and developer-friendly browser extension for Microsoft
 1. Clone this repository:
    ```bash
    git clone https://github.com/sempijja/Dev-Peek
-   cd HoverPeek
+   cd Dev-Peek
    ```
 
-2. Open Microsoft Edge and navigate to:
-   `edge://extensions/`
+2. Open your browser and navigate to the extensions page (e.g., `chrome://extensions/` or `edge://extensions/`).
 
+3. Enable "Developer mode".
 
+4. Click "Load unpacked" and select the cloned `Dev-Peek` directory.
+
+---
 
 ## **Contributing**
 
@@ -41,7 +46,7 @@ We welcome contributions to Dev Peek! Here’s how you can contribute:
 1. **Fork the Repository**: Click on the fork button at the top-right corner of this repository.
 2. **Clone Your Fork**:
    ```bash
-   git clone https://github.com/sempijja/Dev-Peek
+   git clone https://github.com/YOUR_USERNAME/Dev-Peek
    ```
 3. **Create a New Branch**:
    ```bash
@@ -52,7 +57,7 @@ We welcome contributions to Dev Peek! Here’s how you can contribute:
 6. **Commit and Push**:
    ```bash
    git add .
-   git commit -m "Add feature/your-feature-name"
+   git commit -m "Add feature: your-feature-name"
    git push origin feature/your-feature-name
    ```
 7. **Open a Pull Request**:
@@ -62,7 +67,7 @@ We welcome contributions to Dev Peek! Here’s how you can contribute:
 
 
 ## **License**
-This project is licensed under the MIT License. .
+This project is licensed under the MIT License.
 
 ---
 

@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Dev Peek",
-  "version": "1.1",
-  "description": "Highlight and inspect UI elements on hover.",
-  "permissions": ["activeTab", "scripting"],
+  "version": "2.0",
+  "description": "Inspect and edit web page elements with Figma-like design capabilities.",
+  "permissions": ["activeTab", "scripting", "storage"],
   "action": {
     "default_icon": {
       "16": "icons/eye.png",
@@ -15,11 +15,10 @@
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [
+  "web_accessible_resources": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["styles.css"]
+      "resources": ["coloris.min.js", "coloris.min.css", "override.css"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
